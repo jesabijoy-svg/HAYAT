@@ -1,0 +1,6 @@
+{
+  "name": "HAYAT Document Intelligence",
+  "description": "Enterprise-grade legal Document Intelligence Engine transforming unstructured PDFs, scans, agreements, and judgments into structured, searchable, and explainable legal data across 17 core processing pipelines.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
