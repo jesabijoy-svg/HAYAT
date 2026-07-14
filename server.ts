@@ -909,22 +909,27 @@ Assistant response (format cleanly using Markdown):`;
 
 // Serve frontend build static files in production
 async function startServer() {
-  if (process.env.NODE_ENV !== 'production') {
+  const distPath = path.join(process.cwd(), 'dist');
+  const indexExists = fs.existsSync(path.join(distPath, 'index.html'));
+  const isProd = process.env.NODE_ENV === 'production' || indexExists;
+
+  console.log(`[HAYAT Server] Starting: NODE_ENV=${process.env.NODE_ENV}, dist/index.html exists=${indexExists}, mode=${isProd ? 'PRODUCTION (Static)' : 'DEVELOPMENT (Vite)'}`);
+
+  if (!isProd) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[HAYAT Document Intelligence Server] Running on http://localhost:${PORT}`);
+  app.listen(Number(PORT), '0.0.0.0', () => {
+    console.log(`[HAYAT Document Intelligence Server] Running on http://0.0.0.0:${PORT}`);
   });
 }
 
