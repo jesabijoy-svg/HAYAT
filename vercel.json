@@ -2,6 +2,10 @@
   "version": 2,
   "builds": [
     {
+      "src": "server.ts",
+      "use": "@vercel/node"
+    },
+    {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
@@ -16,11 +20,11 @@
     },
     {
       "src": "/assets/(.*)",
-      "dest": "/assets/$1"
+      "dest": "dist/assets/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/$1"
+      "dest": "dist/$1"
     }
   ]
 }

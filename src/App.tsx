@@ -312,11 +312,6 @@ export default function App() {
         </div>
 
       </main>
-      
-      {/* Simple Professional Margin Footer */}
-      <footer className="mt-auto border-t border-white/5 bg-dark-card py-4 text-center text-[11px] text-white/40">
-        HAYAT Document Intelligence Engine v1.0. All public domain judicial records cataloged.
-      </footer>
     </div>
   );
 }
