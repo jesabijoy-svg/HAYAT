@@ -8,16 +8,19 @@ import HumanReviewTool from './components/HumanReviewTool';
 import StructuredOutputViewer from './components/StructuredOutputViewer';
 import KnowledgeGraphLibrary from './components/KnowledgeGraphLibrary';
 import LargePDFExtractor from './components/LargePDFExtractor';
-import { Play, Sparkles, Loader2, AlertCircle, ShieldAlert } from 'lucide-react';
+import BDLawsScraper from './components/BDLawsScraper';
+import SimplifiedDashboard from './components/SimplifiedDashboard';
+import { Play, Sparkles, Loader2, AlertCircle, ShieldAlert, Settings, Sparkle } from 'lucide-react';
 
 export default function App() {
+  const [viewMode, setViewMode] = useState<'simplified' | 'expert'>('simplified');
   const [documents, setDocuments] = useState<LegalDocument[]>(() => {
     // Initial load
     return [...SAMPLE_DOCUMENTS];
   });
   const [selectedDocId, setSelectedDocId] = useState<string>('doc-pakistan-sc-judgment');
   const [activeServiceId, setActiveServiceId] = useState<number>(1);
-  const [activeDashboardTab, setActiveDashboardTab] = useState<'pipeline' | 'review' | 'export' | 'library' | 'converter'>('pipeline');
+  const [activeDashboardTab, setActiveDashboardTab] = useState<'pipeline' | 'review' | 'export' | 'library' | 'converter' | 'scraper'>('pipeline');
   const [isProcessing, setIsProcessing] = useState(false);
   const [warning, setWarning] = useState<string | undefined>(undefined);
   const [processingStage, setProcessingStage] = useState<string>('');
@@ -190,127 +193,219 @@ export default function App() {
           </div>
 
           {/* Right Column - Workspaces */}
-          <div className="lg:col-span-8 flex flex-col gap-4" id="workspaces-container">
-            {/* Tab Controls */}
-            <div className="flex border-b border-white/5" id="workspaces-tabs">
-              <button
-                onClick={() => setActiveDashboardTab('pipeline')}
-                className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
-                  activeDashboardTab === 'pipeline'
-                    ? 'border-gold text-gold font-bold'
-                    : 'border-transparent text-white/45 hover:text-white/70'
-                }`}
-                id="btn-tab-pipeline"
-              >
-                Pipeline Inspector
-              </button>
-              <button
-                onClick={() => setActiveDashboardTab('converter')}
-                className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
-                  activeDashboardTab === 'converter'
-                    ? 'border-gold text-gold font-bold'
-                    : 'border-transparent text-white/45 hover:text-white/70'
-                }`}
-                id="btn-tab-converter"
-              >
-                PDF Extractor & Converter
-              </button>
-              <button
-                onClick={() => setActiveDashboardTab('review')}
-                className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all relative cursor-pointer ${
-                  activeDashboardTab === 'review'
-                    ? 'border-gold text-gold font-bold'
-                    : 'border-transparent text-white/45 hover:text-white/70'
-                }`}
-                id="btn-tab-review"
-              >
-                Review Workspace
-                {selectedDoc && selectedDoc.status === 'review_required' && (
-                  <span className="absolute top-2 right-1.5 flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                  </span>
-                )}
-              </button>
-              <button
-                onClick={() => setActiveDashboardTab('export')}
-                className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
-                  activeDashboardTab === 'export'
-                    ? 'border-gold text-gold font-bold'
-                    : 'border-transparent text-white/45 hover:text-white/70'
-                }`}
-                id="btn-tab-export"
-              >
-                Export Structs
-              </button>
-              <button
-                onClick={() => setActiveDashboardTab('library')}
-                className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
-                  activeDashboardTab === 'library'
-                    ? 'border-gold text-gold font-bold'
-                    : 'border-transparent text-white/45 hover:text-white/70'
-                }`}
-                id="btn-tab-library"
-              >
-                Knowledge Graph & Library
-              </button>
+          <div className="lg:col-span-8 flex flex-col gap-5" id="workspaces-container">
+            
+            {/* View Mode Experience Switcher */}
+            <div className="bg-dark-card border border-white/5 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-[0_4px_20px_rgba(0,0,0,0.3)]" id="experience-mode-selector">
+              <div>
+                <span className="text-[10px] font-bold tracking-widest text-gold uppercase font-mono block">Workspace Experience Mode</span>
+                <p className="text-[11px] text-white/45 mt-0.5">
+                  {viewMode === 'simplified' 
+                    ? 'Friendly, plain-English summary guides, quick compliance checklists, and direct AI conversational assistant.'
+                    : 'Expert debugger with layout coordinate grids, OCR analytics, raw schema exports, and precedent libraries.'
+                  }
+                </p>
+              </div>
+              
+              <div className="flex bg-dark-bg/80 border border-white/10 p-1 rounded-lg shrink-0">
+                <button
+                  onClick={() => setViewMode('simplified')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                    viewMode === 'simplified'
+                      ? 'bg-gold text-dark-bg font-bold shadow-[0_0_12px_rgba(212,175,55,0.25)]'
+                      : 'text-white/50 hover:text-white/80'
+                  }`}
+                  id="viewmode-btn-simplified"
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>Simple Guide</span>
+                </button>
+                <button
+                  onClick={() => setViewMode('expert')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                    viewMode === 'expert'
+                      ? 'bg-white/10 text-white font-bold'
+                      : 'text-white/50 hover:text-white/80'
+                  }`}
+                  id="viewmode-btn-expert"
+                >
+                  <Settings className="h-3.5 w-3.5" />
+                  <span>Expert Engine</span>
+                </button>
+              </div>
             </div>
 
-            {/* Dynamic Workspaces Render */}
-            {isProcessing ? (
-              <div className="flex flex-col items-center justify-center rounded-xl border border-white/5 bg-dark-card p-16 text-center h-[550px] animate-pulse">
-                <Loader2 className="h-10 w-10 text-gold animate-spin mb-4" />
-                <span className="text-sm font-bold text-white uppercase tracking-widest">Running Document Intelligence</span>
-                <span className="text-xs text-white/40 max-w-sm mt-2 leading-relaxed h-10 italic">
-                  {processingStage}
-                </span>
-                <div className="mt-8 flex gap-1.5">
-                  <span className="h-1.5 w-1.5 bg-gold rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                  <span className="h-1.5 w-1.5 bg-gold rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                  <span className="h-1.5 w-1.5 bg-gold rounded-full animate-bounce"></span>
+            {/* Dynamic Rendering depending on Mode */}
+            {viewMode === 'simplified' ? (
+              isProcessing ? (
+                <div className="flex flex-col items-center justify-center rounded-xl border border-white/5 bg-dark-card p-16 text-center h-[550px] animate-pulse">
+                  <Loader2 className="h-10 w-10 text-gold animate-spin mb-4" />
+                  <span className="text-sm font-bold text-white uppercase tracking-widest">Running Document Intelligence</span>
+                  <span className="text-xs text-white/40 max-w-sm mt-2 leading-relaxed h-10 italic">
+                    {processingStage}
+                  </span>
+                  <div className="mt-8 flex gap-1.5">
+                    <span className="h-1.5 w-1.5 bg-gold rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                    <span className="h-1.5 w-1.5 bg-gold rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                    <span className="h-1.5 w-1.5 bg-gold rounded-full animate-bounce"></span>
+                  </div>
                 </div>
-              </div>
-            ) : selectedDoc.status === 'failed' ? (
-              <div className="flex flex-col items-center justify-center rounded-xl border border-white/5 bg-dark-card p-12 text-center h-[450px]">
-                <AlertCircle className="h-12 w-12 text-red-500 mb-3" />
-                <span className="text-sm font-bold text-white">Pipeline Failed</span>
-                <span className="text-xs text-white/40 max-w-xs mt-1 leading-relaxed">
-                  The document could not be processed through the extraction engine. Verify internet connectivity or secret configuration and try again.
-                </span>
-              </div>
+              ) : selectedDoc.status === 'failed' ? (
+                <div className="flex flex-col items-center justify-center rounded-xl border border-white/5 bg-dark-card p-12 text-center h-[450px]">
+                  <AlertCircle className="h-12 w-12 text-red-500 mb-3" />
+                  <span className="text-sm font-bold text-white">Pipeline Failed</span>
+                  <span className="text-xs text-white/40 max-w-xs mt-1 leading-relaxed">
+                    The document could not be processed through the extraction engine. Verify internet connectivity or secret configuration and try again.
+                  </span>
+                </div>
+              ) : (
+                <SimplifiedDashboard document={selectedDoc} />
+              )
             ) : (
-              <div className="space-y-6">
-                {activeDashboardTab === 'library' && (
-                  <KnowledgeGraphLibrary
-                    documents={documents}
-                    selectedDocId={selectedDocId}
-                    onSelectDoc={handleSelectDoc}
-                  />
-                )}
+              <>
+                {/* Tab Controls */}
+                <div className="flex border-b border-white/5 overflow-x-auto scrollbar-none" id="workspaces-tabs">
+                  <button
+                    onClick={() => setActiveDashboardTab('pipeline')}
+                    className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer shrink-0 ${
+                      activeDashboardTab === 'pipeline'
+                        ? 'border-gold text-gold font-bold'
+                        : 'border-transparent text-white/45 hover:text-white/70'
+                    }`}
+                    id="btn-tab-pipeline"
+                  >
+                    Pipeline Inspector
+                  </button>
+                  <button
+                    onClick={() => setActiveDashboardTab('converter')}
+                    className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer shrink-0 ${
+                      activeDashboardTab === 'converter'
+                        ? 'border-gold text-gold font-bold'
+                        : 'border-transparent text-white/45 hover:text-white/70'
+                    }`}
+                    id="btn-tab-converter"
+                  >
+                    PDF Extractor & Converter
+                  </button>
+                  <button
+                    onClick={() => setActiveDashboardTab('review')}
+                    className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all relative cursor-pointer shrink-0 ${
+                      activeDashboardTab === 'review'
+                        ? 'border-gold text-gold font-bold'
+                        : 'border-transparent text-white/45 hover:text-white/70'
+                    }`}
+                    id="btn-tab-review"
+                  >
+                    Review Workspace
+                    {selectedDoc && selectedDoc.status === 'review_required' && (
+                      <span className="absolute top-2 right-1.5 flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                      </span>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setActiveDashboardTab('export')}
+                    className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer shrink-0 ${
+                      activeDashboardTab === 'export'
+                        ? 'border-gold text-gold font-bold'
+                        : 'border-transparent text-white/45 hover:text-white/70'
+                    }`}
+                    id="btn-tab-export"
+                  >
+                    Export Structs
+                  </button>
+                  <button
+                    onClick={() => setActiveDashboardTab('library')}
+                    className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer shrink-0 ${
+                      activeDashboardTab === 'library'
+                        ? 'border-gold text-gold font-bold'
+                        : 'border-transparent text-white/45 hover:text-white/70'
+                    }`}
+                    id="btn-tab-library"
+                  >
+                    Knowledge Graph & Library
+                  </button>
+                  <button
+                    onClick={() => setActiveDashboardTab('scraper')}
+                    className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer shrink-0 ${
+                      activeDashboardTab === 'scraper'
+                        ? 'border-gold text-gold font-bold'
+                        : 'border-transparent text-white/45 hover:text-white/70'
+                    }`}
+                    id="btn-tab-scraper"
+                  >
+                    BDLaws Scraper
+                  </button>
+                </div>
 
-                {activeDashboardTab === 'pipeline' && (
-                  <PipelineVisualizer
-                    document={selectedDoc}
-                    activeServiceId={activeServiceId}
-                    setActiveServiceId={setActiveServiceId}
-                  />
-                )}
+                {/* Dynamic Workspaces Render */}
+                {isProcessing ? (
+                  <div className="flex flex-col items-center justify-center rounded-xl border border-white/5 bg-dark-card p-16 text-center h-[550px] animate-pulse">
+                    <Loader2 className="h-10 w-10 text-gold animate-spin mb-4" />
+                    <span className="text-sm font-bold text-white uppercase tracking-widest">Running Document Intelligence</span>
+                    <span className="text-xs text-white/40 max-w-sm mt-2 leading-relaxed h-10 italic">
+                      {processingStage}
+                    </span>
+                    <div className="mt-8 flex gap-1.5">
+                      <span className="h-1.5 w-1.5 bg-gold rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                      <span className="h-1.5 w-1.5 bg-gold rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                      <span className="h-1.5 w-1.5 bg-gold rounded-full animate-bounce"></span>
+                    </div>
+                  </div>
+                ) : selectedDoc.status === 'failed' ? (
+                  <div className="flex flex-col items-center justify-center rounded-xl border border-white/5 bg-dark-card p-12 text-center h-[450px]">
+                    <AlertCircle className="h-12 w-12 text-red-500 mb-3" />
+                    <span className="text-sm font-bold text-white">Pipeline Failed</span>
+                    <span className="text-xs text-white/40 max-w-xs mt-1 leading-relaxed">
+                      The document could not be processed through the extraction engine. Verify internet connectivity or secret configuration and try again.
+                    </span>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {activeDashboardTab === 'library' && (
+                      <KnowledgeGraphLibrary
+                        documents={documents}
+                        selectedDocId={selectedDocId}
+                        onSelectDoc={handleSelectDoc}
+                      />
+                    )}
 
-                {activeDashboardTab === 'review' && (
-                  <HumanReviewTool
-                    document={selectedDoc}
-                    onUpdateDocument={handleUpdateDoc}
-                  />
-                )}
+                    {activeDashboardTab === 'pipeline' && (
+                      <PipelineVisualizer
+                        document={selectedDoc}
+                        activeServiceId={activeServiceId}
+                        setActiveServiceId={setActiveServiceId}
+                      />
+                    )}
 
-                {activeDashboardTab === 'export' && (
-                  <StructuredOutputViewer doc={selectedDoc} />
-                )}
+                    {activeDashboardTab === 'review' && (
+                      <HumanReviewTool
+                        document={selectedDoc}
+                        onUpdateDocument={handleUpdateDoc}
+                      />
+                    )}
 
-                {activeDashboardTab === 'converter' && (
-                  <LargePDFExtractor document={selectedDoc} />
+                    {activeDashboardTab === 'export' && (
+                      <StructuredOutputViewer doc={selectedDoc} />
+                    )}
+
+                    {activeDashboardTab === 'converter' && (
+                      <LargePDFExtractor document={selectedDoc} />
+                    )}
+
+                    {activeDashboardTab === 'scraper' && (
+                      <BDLawsScraper
+                        onImportDocument={(newDoc) => {
+                          setDocuments((prev) => [newDoc, ...prev]);
+                          setSelectedDocId(newDoc.id);
+                          setViewMode('simplified'); // Auto change to simplified!
+                        }}
+                      />
+                    )}
+                  </div>
                 )}
-              </div>
+              </>
             )}
           </div>
 
