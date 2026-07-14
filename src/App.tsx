@@ -93,6 +93,11 @@ export default function App() {
           body: JSON.stringify({ name, content, mimeType, size }),
         });
 
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(`Server returned status ${response.status}: ${errText.slice(0, 100)}`);
+        }
+
         const data = await response.json();
 
         if (data.success && data.results) {
